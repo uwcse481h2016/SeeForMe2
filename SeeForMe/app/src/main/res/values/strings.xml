@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SeeForMe</string>
+    <string name="title_activity_object_recognition">ObjectRecognition</string>
 </resources>
