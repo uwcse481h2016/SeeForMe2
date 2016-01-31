@@ -242,7 +242,9 @@ public class Camera2BasicFragment extends Fragment
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            Image img = reader.acquireNextImage();
+            showToast("Muhahahaha do color recongination here");
+            mBackgroundHandler.post(new ImageSaver(img, mFile));
         }
 
     };
