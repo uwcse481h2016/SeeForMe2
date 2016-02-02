@@ -258,18 +258,39 @@ public class Camera2BasicFragment extends Fragment
             buffer.get(bytes);
 
             Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            int c = a.getPixel(5, 5);
 
-            int red = Color.red(c);
-            int blue = Color.blue(c);
-            int green = Color.green(c);
+            long avgred = 0;
+            long avgblue = 0;
+            long avggreen = 0;
 
-            Log.v("CRLOG", "bb length: " + c);
-            Log.v("CRLOG", "bb length: " + red);
-            Log.v("CRLOG", "bb length: " + blue);
-            Log.v("CRLOG", "bb length: " + green);
+            int basex = a.getWidth() / 2 - 250;
+            int basey = a.getHeight() / 2 - 250;
 
-            mBackgroundHandler.post(new ImageSaver(img, mFile));
+            for (int i = 0; i < 50; i++) {
+                for (int j = 0; j < 50; j++) {
+                    int x = i * 10 + basex;
+                    int y = j * 10 + basey;
+                    int pixel = a.getPixel(x, y);
+
+                    avgblue += Color.blue(pixel);
+                    avgred += Color.red(pixel);
+                    avggreen += Color.green(pixel);
+                }
+            }
+
+            avgblue = avgblue / 2500;
+            avggreen = avggreen / 2500;
+            avgred = avgred / 2500;
+
+            Log.v("CRLOG", "red: " + avgred);
+            Log.v("CRLOG", "blue: " + avgblue);
+            Log.v("CRLOG", "green: " + avggreen);
+            ColorDecoded cd = new ColorDecoded();
+            String s = cd.getColorNameFromRgb((int) avgred, (int) avggreen, (int) avgblue);
+
+            showToast(s);
+
+            //mBackgroundHandler.post(new ImageSaver(img, mFile));
 
             //File root = Environment.getExternalStorageDirectory()
         }
@@ -857,7 +878,7 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    showToast("Saved: " + mFile);
+                    // showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }

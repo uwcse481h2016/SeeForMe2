@@ -5,10 +5,9 @@
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-    <meta-data
-        android:name="com.google.android.vision.API_KEY"
-        android:value="AIzaSyCLfXrRP16x32zXR2rNs5o64BLDO-meMyc"/>
 
+
+    AIzaSyDCcAnSOipSxv8ZOktuvUc7uaX35VTyi4M
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
