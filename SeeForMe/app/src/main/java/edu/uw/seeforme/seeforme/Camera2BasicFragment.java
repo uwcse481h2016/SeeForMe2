@@ -247,17 +247,11 @@ public class Camera2BasicFragment extends Fragment
         public void onImageAvailable(ImageReader reader) {
             Image img = reader.acquireNextImage();
 
-            showToast("Muhahahaha do color recongination here");
             Log.v("CRLOG", "height: " + img.getHeight());
             Log.v("CRLOG", "width: " + img.getWidth());
             Log.v("CRLOG", "format: " + img.getFormat());
 
-//            Image.Plane p = img.getPlanes().clone()[0];
-//            ByteBuffer bb = p.getBuffer();
-//            Log.v("CRLOG", "getPixelStride: " + p.getPixelStride());
-//            Log.v("CRLOG", "getRowStride: " + p.getRowStride());
-//            byte[] a = bb.duplicate().array();
-//            Log.v("CRLOG", "bb length: " + bb.array().length);
+
 
             ByteBuffer buffer = img.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
@@ -271,6 +265,9 @@ public class Camera2BasicFragment extends Fragment
             int green = Color.green(c);
 
             Log.v("CRLOG", "bb length: " + c);
+            Log.v("CRLOG", "bb length: " + red);
+            Log.v("CRLOG", "bb length: " + blue);
+            Log.v("CRLOG", "bb length: " + green);
 
             mBackgroundHandler.post(new ImageSaver(img, mFile));
 
