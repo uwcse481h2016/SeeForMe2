@@ -25,6 +25,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -243,8 +246,35 @@ public class Camera2BasicFragment extends Fragment
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image img = reader.acquireNextImage();
+
             showToast("Muhahahaha do color recongination here");
+            Log.v("CRLOG", "height: " + img.getHeight());
+            Log.v("CRLOG", "width: " + img.getWidth());
+            Log.v("CRLOG", "format: " + img.getFormat());
+
+//            Image.Plane p = img.getPlanes().clone()[0];
+//            ByteBuffer bb = p.getBuffer();
+//            Log.v("CRLOG", "getPixelStride: " + p.getPixelStride());
+//            Log.v("CRLOG", "getRowStride: " + p.getRowStride());
+//            byte[] a = bb.duplicate().array();
+//            Log.v("CRLOG", "bb length: " + bb.array().length);
+
+            ByteBuffer buffer = img.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+
+            Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            int c = a.getPixel(5, 5);
+
+            int red = Color.red(c);
+            int blue = Color.blue(c);
+            int green = Color.green(c);
+
+            Log.v("CRLOG", "bb length: " + c);
+
             mBackgroundHandler.post(new ImageSaver(img, mFile));
+
+            //File root = Environment.getExternalStorageDirectory()
         }
 
     };

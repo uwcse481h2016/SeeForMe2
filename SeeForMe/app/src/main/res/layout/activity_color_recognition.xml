@@ -13,14 +13,4 @@
         android:background="#000"
         tools:context="com.example.android.camera2basic.CameraActivity" />
 
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Color Recognition"
-        android:id="@+id/Title"
-        android:layout_below="@+id/texture"
-        android:layout_centerHorizontal="true" />
-
 </RelativeLayout>

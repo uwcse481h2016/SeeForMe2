@@ -22,7 +22,8 @@
         </activity>
         <activity
             android:name=".ColorRecognition"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uw.seeforme.seeforme.MainActivity" />
@@ -31,6 +32,7 @@
         <activity
             android:name=".ObjectRecognition"
             android:label="@string/title_activity_object_recognition"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
