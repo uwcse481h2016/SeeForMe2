@@ -12,6 +12,7 @@ public class ObjectRecognition extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_object_recognition);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Object Recongntion");
     }
 
     @Override

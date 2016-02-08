@@ -11,8 +11,13 @@ public class ColorRecognition extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_color_recognition);
+        getSupportActionBar().setTitle("Color Recongntion");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        if (null == savedInstanceState) {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.container, Camera2BasicFragment.newInstance())
+                    .commit();
+        }
     }
 
     @Override
