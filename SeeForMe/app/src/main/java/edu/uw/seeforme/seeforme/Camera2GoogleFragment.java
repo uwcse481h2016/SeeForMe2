@@ -45,6 +45,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -273,16 +274,14 @@ public class Camera2GoogleFragment extends Fragment
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             try {
+                // this is a bitmap convert from the image
                 Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                callCloudVision(scaleBitmapDown(a, 1200));
 
+                // make the api call
+                callCloudVision(scaleBitmapDown(a, 1200));
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
             }
-
-            // this part make the api call
-
-
         }
 
     };
@@ -371,7 +370,7 @@ public class Camera2GoogleFragment extends Fragment
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-    private String convertResponseToString(BatchAnnotateImagesResponse response) {
+    private void convertResponseToString(BatchAnnotateImagesResponse response) {
         String message = "I found these things:\n\n";
 
         List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
@@ -379,13 +378,11 @@ public class Camera2GoogleFragment extends Fragment
             for (EntityAnnotation label : labels) {
                 message += label.getDescription();
                 message += "\n";
-                showToast(message);
             }
         } else {
             message += "nothing";
         }
-
-        return message;
+        showToast(message);
     }
 
     /**
@@ -494,7 +491,7 @@ public class Camera2GoogleFragment extends Fragment
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
                 }
             });
         }
