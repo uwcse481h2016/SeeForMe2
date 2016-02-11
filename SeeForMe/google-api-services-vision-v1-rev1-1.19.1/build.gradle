@@ -1,0 +1,2 @@
+configurations.create("default")
+artifacts.add("default", file('google-api-services-vision-v1-rev1-1.19.1.jar'))
