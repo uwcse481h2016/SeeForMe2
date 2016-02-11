@@ -59,7 +59,9 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.os.AsyncTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -73,6 +75,21 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.EntityAnnotation;
+import com.google.api.services.vision.v1.model.Feature;
+import com.google.api.services.vision.v1.model.*;
+
+
 
 
 public class Camera2GoogleFragment extends Fragment
@@ -248,27 +265,128 @@ public class Camera2GoogleFragment extends Fragment
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Image img = reader.acquireNextImage();
+            android.media.Image img = reader.acquireNextImage();
             // this part does the image encode
 
 
             ByteBuffer buffer = img.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
+            try {
+                Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                callCloudVision(scaleBitmapDown(a, 1200));
 
-            Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            a.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-            byte[] b = baos.toByteArray();
-            String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
-            showToast("image has been encoded:" + encodedImage.substring(1,10) + "...");
+            } catch (IOException e) {
+                Log.d(TAG, "Image picking failed because " + e.getMessage());
+            }
+
             // this part make the api call
 
 
         }
 
     };
+    private void callCloudVision(final Bitmap bitmap) throws IOException {
+        // Switch text to loading
 
+        // Do the real work in an async task, because we need to use the network anyway
+        new AsyncTask<Object, Void, String>() {
+            @Override
+            protected String doInBackground(Object... params) {
+                try {
+                    HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
+                    JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
+                    Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
+                    builder.setVisionRequestInitializer(new
+                            VisionRequestInitializer(CLOUD_VISION_API_KEY));
+                    Vision vision = builder.build();
+
+                    BatchAnnotateImagesRequest batchAnnotateImagesRequest =
+                            new BatchAnnotateImagesRequest();
+                    batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
+                        AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
+
+                        // Add the image
+                        com.google.api.services.vision.v1.model.Image base64EncodedImage = new com.google.api.services.vision.v1.model.Image();
+                        // Convert the bitmap to a JPEG
+                        // Just in case it's a format that Android understands but Cloud Vision
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
+                        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+
+                        // Base64 encode the JPEG
+                        base64EncodedImage.encodeContent(imageBytes);
+                        annotateImageRequest.setImage(base64EncodedImage);
+
+                        // add the features we want
+                        annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
+                            Feature labelDetection = new Feature();
+                            labelDetection.setType("TEXT_DETECTION");
+                            labelDetection.setMaxResults(10);
+                            add(labelDetection);
+                        }});
+
+                        // Add the list of one thing to the request
+                        add(annotateImageRequest);
+                    }});
+
+                    Vision.Images.Annotate annotateRequest =
+                            vision.images().annotate(batchAnnotateImagesRequest);
+                    Log.d(TAG, "created Cloud Vision request object, sending request");
+
+                    BatchAnnotateImagesResponse response = annotateRequest.execute();
+                    convertResponseToString(response);
+
+                } catch (GoogleJsonResponseException e) {
+                    Log.d(TAG, "failed to make API request because " + e.getContent());
+                } catch (IOException e) {
+                    Log.d(TAG, "failed to make API request because of other IOException " +
+                            e.getMessage());
+                }
+                return "Cloud Vision API request failed. Check logs for details.";
+            }
+
+
+        }.execute();
+    }
+
+    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+
+        int originalWidth = bitmap.getWidth();
+        int originalHeight = bitmap.getHeight();
+        int resizedWidth = maxDimension;
+        int resizedHeight = maxDimension;
+
+        if (originalHeight > originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
+        } else if (originalWidth > originalHeight) {
+            resizedWidth = maxDimension;
+            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
+        } else if (originalHeight == originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = maxDimension;
+        }
+        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
+    }
+
+    private String convertResponseToString(BatchAnnotateImagesResponse response) {
+        String message = "I found these things:\n\n";
+
+        List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
+        if (labels != null) {
+            for (EntityAnnotation label : labels) {
+                message += label.getDescription();
+                message += "\n";
+                showToast(message);
+            }
+        } else {
+            message += "nothing";
+        }
+
+        return message;
+    }
 
     /**
      * {@link CaptureRequest.Builder} for the camera preview
@@ -903,20 +1021,20 @@ public class Camera2GoogleFragment extends Fragment
     }
 
     /**
-     * Saves a JPEG {@link Image} into the specified {@link File}.
+     * Saves a JPEG {@link android.media.Image} into the specified {@link File}.
      */
     private static class ImageSaver implements Runnable {
 
         /**
          * The JPEG image
          */
-        private final Image mImage;
+        private final android.media.Image mImage;
         /**
          * The file we save the image into.
          */
         private final File mFile;
 
-        public ImageSaver(Image image, File file) {
+        public ImageSaver(android.media.Image image, File file) {
             mImage = image;
             mFile = file;
         }
