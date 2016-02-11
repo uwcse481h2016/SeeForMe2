@@ -6,8 +6,6 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
-
-    AIzaSyDCcAnSOipSxv8ZOktuvUc7uaX35VTyi4M
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -40,6 +38,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uw.seeforme.seeforme.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".TextRecognition"
+            android:label="@string/title_activity_text_recognition"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.uw.seeforme.seeforme.MainActivity" />
+        </activity>
+
     </application>
 
 </manifest>

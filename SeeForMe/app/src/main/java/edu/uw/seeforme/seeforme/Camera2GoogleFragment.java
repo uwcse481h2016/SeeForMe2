@@ -27,7 +27,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -75,7 +74,8 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class Camera2BasicFragment extends Fragment
+
+public class Camera2GoogleFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
     /**
@@ -84,6 +84,7 @@ public class Camera2BasicFragment extends Fragment
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyCBHJTfMQp6ZqmnP-tZagRhlxRppBzPDWw";
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -248,11 +249,7 @@ public class Camera2BasicFragment extends Fragment
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image img = reader.acquireNextImage();
-
-            Log.v("CRLOG", "height: " + img.getHeight());
-            Log.v("CRLOG", "width: " + img.getWidth());
-            Log.v("CRLOG", "format: " + img.getFormat());
-
+            // this part does the image encode
 
 
             ByteBuffer buffer = img.getPlanes()[0].getBuffer();
@@ -260,45 +257,18 @@ public class Camera2BasicFragment extends Fragment
             buffer.get(bytes);
 
             Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            a.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+            byte[] b = baos.toByteArray();
+            String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+            showToast("image has been encoded:" + encodedImage.substring(1,10) + "...");
+            // this part make the api call
 
-            long avgred = 0;
-            long avgblue = 0;
-            long avggreen = 0;
-
-            int basex = a.getWidth() / 2 - 250;
-            int basey = a.getHeight() / 2 - 250;
-
-            for (int i = 0; i < 50; i++) {
-                for (int j = 0; j < 50; j++) {
-                    int x = i * 10 + basex;
-                    int y = j * 10 + basey;
-                    int pixel = a.getPixel(x, y);
-
-                    avgblue += Color.blue(pixel);
-                    avgred += Color.red(pixel);
-                    avggreen += Color.green(pixel);
-                }
-            }
-
-            avgblue = avgblue / 2500;
-            avggreen = avggreen / 2500;
-            avgred = avgred / 2500;
-
-            Log.v("CRLOG", "red: " + avgred);
-            Log.v("CRLOG", "blue: " + avgblue);
-            Log.v("CRLOG", "green: " + avggreen);
-            ColorDecoded cd = new ColorDecoded();
-            String s = cd.getColorNameFromRgb((int) avgred, (int) avggreen, (int) avgblue);
-
-            showToast(s);
-
-            //mBackgroundHandler.post(new ImageSaver(img, mFile));
-
-            //File root = Environment.getExternalStorageDirectory()
 
         }
 
     };
+
 
     /**
      * {@link CaptureRequest.Builder} for the camera preview
@@ -461,8 +431,8 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
-    public static Camera2BasicFragment newInstance() {
-        return new Camera2BasicFragment();
+    public static Camera2GoogleFragment newInstance() {
+        return new Camera2GoogleFragment();
     }
 
     @Override

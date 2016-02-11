@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">SeeForMe</string>
+    <string name="title_activity_color_recognition">ColorRecognition</string>
     <string name="title_activity_object_recognition">ObjectRecognition</string>
+    <string name="title_activity_text_recognition">TextRecognition</string>
     <string name="picture">Picture</string>
     <string name="description_info">Info</string>
     <string name="request_permission">This sample needs camera permission.</string>
