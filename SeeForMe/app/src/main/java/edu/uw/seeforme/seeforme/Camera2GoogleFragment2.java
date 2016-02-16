@@ -90,7 +90,7 @@ import java.util.concurrent.TimeUnit;
 
 
 
-public class Camera2GoogleFragment extends Fragment
+public class Camera2GoogleFragment2 extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
     /**
@@ -320,7 +320,7 @@ public class Camera2GoogleFragment extends Fragment
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             Feature labelDetection = new Feature();
-                            labelDetection.setType("TEXT_DETECTION");
+                            labelDetection.setType("LABEL_DETECTION");
                             labelDetection.setMaxResults(10);
                             add(labelDetection);
                         }});
@@ -372,7 +372,7 @@ public class Camera2GoogleFragment extends Fragment
     private void convertResponseToString(BatchAnnotateImagesResponse response) {
         String message = "I found these things:\n\n";
 
-        List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
+        List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
         if (labels != null) {
             for (EntityAnnotation label : labels) {
                 message += label.getDescription();
@@ -546,8 +546,8 @@ public class Camera2GoogleFragment extends Fragment
         }
     }
 
-    public static Camera2GoogleFragment newInstance() {
-        return new Camera2GoogleFragment();
+    public static Camera2GoogleFragment2 newInstance() {
+        return new Camera2GoogleFragment2();
     }
 
     @Override
