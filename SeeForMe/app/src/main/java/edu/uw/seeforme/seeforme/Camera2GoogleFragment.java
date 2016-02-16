@@ -386,7 +386,7 @@ public class Camera2GoogleFragment extends Fragment
                 message += "\n";
             }
         } else {
-            message += "nothing";
+            message += "nothing\n";
         }
 
         message += "logos on this image: \n";
@@ -982,7 +982,8 @@ public class Camera2GoogleFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    // showToast("Saved: " + mFile);
+                    //showToast("Saved: " + mFile);
+                    showToast("Processing image");
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
