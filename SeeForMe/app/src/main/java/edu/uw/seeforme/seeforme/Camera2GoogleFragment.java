@@ -323,7 +323,11 @@ public class Camera2GoogleFragment extends Fragment
                             Feature labelDetection = new Feature();
                             labelDetection.setType("TEXT_DETECTION");
                             labelDetection.setMaxResults(10);
+                            Feature logoDetection = new Feature();
+                            logoDetection.setType("LOGO_DETECTION");
+                            logoDetection.setMaxResults(10);
                             add(labelDetection);
+                            add(logoDetection);
                         }});
 
                         // Add the list of one thing to the request
@@ -374,9 +378,21 @@ public class Camera2GoogleFragment extends Fragment
         String message = "I found these things:\n\n";
 
         List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
+        List<EntityAnnotation> logos = response.getResponses().get(0).getLogoAnnotations();
+        message += "Text found on the image: \n";
         if (labels != null) {
             for (EntityAnnotation label : labels) {
                 message += label.getDescription();
+                message += "\n";
+            }
+        } else {
+            message += "nothing";
+        }
+
+        message += "logos on this image: \n";
+        if (logos != null) {
+            for (EntityAnnotation logo : logos) {
+                message += logo.getDescription();
                 message += "\n";
             }
         } else {
