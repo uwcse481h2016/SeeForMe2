@@ -301,9 +301,11 @@ public class Camera2BasicFragment extends Fragment
 
             if (colorsFound.size() == 0) {
                 r = "No color found";
-            }
-            for (String b : colorsFound) {
-                r += b + " ";
+            } else {
+                for (String b : colorsFound) {
+                    r += b + ", ";
+                }
+                r = r.substring(0, r.length() - 2);
             }
 
             showToast(r);
