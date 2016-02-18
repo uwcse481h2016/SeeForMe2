@@ -13,6 +13,11 @@ public class ObjectRecognition extends AppCompatActivity {
         setContentView(R.layout.activity_object_recognition);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Object Recongntion");
+        if (null == savedInstanceState) {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.container, Camera2GoogleFragment2.newInstance())
+                    .commit();
+        }
     }
 
     @Override
