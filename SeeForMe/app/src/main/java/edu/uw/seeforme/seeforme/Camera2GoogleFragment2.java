@@ -90,7 +90,7 @@ import java.util.concurrent.TimeUnit;
 
 
 
-public class Camera2GoogleFragment extends Fragment
+public class Camera2GoogleFragment2 extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
     /**
@@ -320,13 +320,9 @@ public class Camera2GoogleFragment extends Fragment
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             Feature labelDetection = new Feature();
-                            labelDetection.setType("TEXT_DETECTION");
+                            labelDetection.setType("LABEL_DETECTION");
                             labelDetection.setMaxResults(10);
-                            Feature logoDetection = new Feature();
-                            logoDetection.setType("LOGO_DETECTION");
-                            logoDetection.setMaxResults(10);
                             add(labelDetection);
-                            add(logoDetection);
                         }});
 
                         // Add the list of one thing to the request
@@ -376,22 +372,10 @@ public class Camera2GoogleFragment extends Fragment
     private void convertResponseToString(BatchAnnotateImagesResponse response) {
         String message = "I found these things:\n\n";
 
-        List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
-        List<EntityAnnotation> logos = response.getResponses().get(0).getLogoAnnotations();
-        message += "Text found on the image: \n";
+        List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
         if (labels != null) {
             for (EntityAnnotation label : labels) {
                 message += label.getDescription();
-                message += "\n";
-            }
-        } else {
-            message += "nothing\n";
-        }
-        message += "logos on this image: \n";
-
-        if (logos != null) {
-            for (EntityAnnotation logo : logos) {
-                message += logo.getDescription();
                 message += "\n";
             }
         } else {
@@ -562,8 +546,8 @@ public class Camera2GoogleFragment extends Fragment
         }
     }
 
-    public static Camera2GoogleFragment newInstance() {
-        return new Camera2GoogleFragment();
+    public static Camera2GoogleFragment2 newInstance() {
+        return new Camera2GoogleFragment2();
     }
 
     @Override
@@ -983,8 +967,7 @@ public class Camera2GoogleFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    //showToast("Saved: " + mFile);
-                    showToast("Processing image");
+                    // showToast("Saved: " + mFile);
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
