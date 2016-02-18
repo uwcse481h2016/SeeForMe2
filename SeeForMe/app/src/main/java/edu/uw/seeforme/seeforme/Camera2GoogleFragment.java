@@ -387,15 +387,14 @@ public class Camera2GoogleFragment extends Fragment
         } else {
             message += "nothing\n";
         }
-        message += "logos on this image: \n";
+
 
         if (logos != null) {
+            message += "logos on this image: \n";
             for (EntityAnnotation logo : logos) {
                 message += logo.getDescription();
                 message += "\n";
             }
-        } else {
-            message += "nothing";
         }
         showToast(message);
     }
