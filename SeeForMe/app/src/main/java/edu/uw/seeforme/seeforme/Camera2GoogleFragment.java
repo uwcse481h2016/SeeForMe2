@@ -42,16 +42,14 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.Image;
 import android.media.ImageReader;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Base64;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -60,9 +58,21 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
-import android.os.AsyncTask;
+
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.EntityAnnotation;
+import com.google.api.services.vision.v1.model.Feature;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -76,19 +86,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.vision.v1.Vision;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.services.vision.v1.VisionRequestInitializer;
-import com.google.api.services.vision.v1.model.AnnotateImageRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
-import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
-import com.google.api.services.vision.v1.model.EntityAnnotation;
-import com.google.api.services.vision.v1.model.Feature;
-import com.google.api.services.vision.v1.model.*;
 
 
 
@@ -188,6 +185,8 @@ public class Camera2GoogleFragment extends Fragment
      * An {@link AutoFitTextureView} for camera preview.
      */
     private AutoFitTextureView mTextureView;
+
+    private Button pictureButton;
 
     /**
      * A {@link CameraCaptureSession } for camera preview.
@@ -388,8 +387,8 @@ public class Camera2GoogleFragment extends Fragment
         } else {
             message += "nothing\n";
         }
-
         message += "logos on this image: \n";
+
         if (logos != null) {
             for (EntityAnnotation logo : logos) {
                 message += logo.getDescription();
@@ -508,6 +507,7 @@ public class Camera2GoogleFragment extends Fragment
                 @Override
                 public void run() {
                     Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
+                    pictureButton.setEnabled(true);
                 }
             });
         }
@@ -576,6 +576,7 @@ public class Camera2GoogleFragment extends Fragment
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        pictureButton = (Button)view.findViewById(R.id.picture);
     }
 
     @Override
@@ -1022,6 +1023,7 @@ public class Camera2GoogleFragment extends Fragment
         switch (view.getId()) {
             case R.id.picture: {
                 takePicture();
+                view.findViewById(R.id.picture).setEnabled(false);
                 break;
             }
         }
