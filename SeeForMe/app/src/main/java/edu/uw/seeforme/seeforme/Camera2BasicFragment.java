@@ -69,7 +69,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -264,51 +263,33 @@ public class Camera2BasicFragment extends Fragment
             long avgblue = 0;
             long avggreen = 0;
 
-            HashSet<String> colorsFound = new HashSet<String>();
+            int basex = a.getWidth() / 2 - 250;
+            int basey = a.getHeight() / 2 - 250;
 
-            for (int n = 0; n < 3; n++) {
-                for (int m = 0; m < 3; m++) {
-                    int wid = a.getWidth() / 3;
-                    int hei = a.getHeight() / 3;
+            for (int i = 0; i < 50; i++) {
+                for (int j = 0; j < 50; j++) {
+                    int x = i * 10 + basex;
+                    int y = j * 10 + basey;
+                    int pixel = a.getPixel(x, y);
 
-
-                    for (int i = 0; i < 50; i++) {
-                        for (int j = 0; j < 50; j++) {
-                            int x = i * 10 + n*wid;
-                            int y = j * 10 + m*hei;
-                            int pixel = a.getPixel(x, y);
-
-                            avgblue += Color.blue(pixel);
-                            avgred += Color.red(pixel);
-                            avggreen += Color.green(pixel);
-                        }
-                    }
-
-                    avgblue = avgblue / 2500;
-                    avggreen = avggreen / 2500;
-                    avgred = avgred / 2500;
-
-                    Log.v("CRLOG", "red: " + avgred);
-                    Log.v("CRLOG", "blue: " + avgblue);
-                    Log.v("CRLOG", "green: " + avggreen);
-                    ColorDecoded cd = new ColorDecoded();
-                    String s = cd.getColorNameFromRgb((int) avgred, (int) avggreen, (int) avgblue);
-
-                    colorsFound.add(s);
+                    avgblue += Color.blue(pixel);
+                    avgred += Color.red(pixel);
+                    avggreen += Color.green(pixel);
                 }
             }
-           String r = "";
 
-            if (colorsFound.size() == 0) {
-                r = "No color found";
-            } else {
-                for (String b : colorsFound) {
-                    r += b + ", ";
-                }
-                r = r.substring(0, r.length() - 2);
-            }
+            avgblue = avgblue / 2500;
+            avggreen = avggreen / 2500;
+            avgred = avgred / 2500;
 
-            showToast(r);
+            Log.v("CRLOG", "red: " + avgred);
+            Log.v("CRLOG", "blue: " + avgblue);
+            Log.v("CRLOG", "green: " + avggreen);
+            ColorDecoded cd = new ColorDecoded();
+            String s = cd.getColorNameFromRgb((int) avgred, (int) avggreen, (int) avgblue);
+
+            showToast(s);
+
             //mBackgroundHandler.post(new ImageSaver(img, mFile));
 
             //File root = Environment.getExternalStorageDirectory()
