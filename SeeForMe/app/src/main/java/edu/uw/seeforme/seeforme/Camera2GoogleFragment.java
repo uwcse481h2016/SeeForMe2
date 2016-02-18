@@ -378,6 +378,14 @@ public class Camera2GoogleFragment extends Fragment
 
         List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
         List<EntityAnnotation> logos = response.getResponses().get(0).getLogoAnnotations();
+        if (logos != null) {
+            message += "logos on this image: \n";
+            for (EntityAnnotation logo : logos) {
+                message += logo.getDescription();
+                message += "\n";
+            }
+        }
+
         message += "Text found on the image: \n";
         if (labels != null) {
             for (EntityAnnotation label : labels) {
@@ -388,14 +396,6 @@ public class Camera2GoogleFragment extends Fragment
             message += "nothing\n";
         }
 
-
-        if (logos != null) {
-            message += "logos on this image: \n";
-            for (EntityAnnotation logo : logos) {
-                message += logo.getDescription();
-                message += "\n";
-            }
-        }
         showToast(message);
     }
 
