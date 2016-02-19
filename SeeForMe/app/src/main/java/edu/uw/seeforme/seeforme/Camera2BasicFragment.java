@@ -59,6 +59,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
@@ -73,6 +74,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+
+
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
@@ -168,6 +172,8 @@ public class Camera2BasicFragment extends Fragment
      * An {@link AutoFitTextureView} for camera preview.
      */
     private AutoFitTextureView mTextureView;
+
+    private Button pictureButton;
 
     /**
      * A {@link CameraCaptureSession } for camera preview.
@@ -424,6 +430,7 @@ public class Camera2BasicFragment extends Fragment
                 @Override
                 public void run() {
                     Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+                    pictureButton.setEnabled(true);
                 }
             });
         }
@@ -492,6 +499,7 @@ public class Camera2BasicFragment extends Fragment
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        pictureButton = (Button)view.findViewById(R.id.picture);
     }
 
     @Override
@@ -768,7 +776,6 @@ public class Camera2BasicFragment extends Fragment
                                 // Auto focus should be continuous for camera preview.
                                 mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
                                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-
                                 // Flash is automatically enabled when necessary.
                                 setAutoFlash(mPreviewRequestBuilder);
 
@@ -899,7 +906,8 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    // showToast("Saved: " + mFile);
+                    //showToast("Saved: " + mFile);
+                    // showToast("Processing image");
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
@@ -938,6 +946,7 @@ public class Camera2BasicFragment extends Fragment
         switch (view.getId()) {
             case R.id.picture: {
                 takePicture();
+                view.findViewById(R.id.picture).setEnabled(false);
                 break;
             }
         }
@@ -951,20 +960,20 @@ public class Camera2BasicFragment extends Fragment
     }
 
     /**
-     * Saves a JPEG {@link Image} into the specified {@link File}.
+     * Saves a JPEG {@link android.media.Image} into the specified {@link File}.
      */
     private static class ImageSaver implements Runnable {
 
         /**
          * The JPEG image
          */
-        private final Image mImage;
+        private final android.media.Image mImage;
         /**
          * The file we save the image into.
          */
         private final File mFile;
 
-        public ImageSaver(Image image, File file) {
+        public ImageSaver(android.media.Image image, File file) {
             mImage = image;
             mFile = file;
         }
