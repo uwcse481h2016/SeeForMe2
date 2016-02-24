@@ -112,6 +112,9 @@ public class ParsePicture extends AsyncTask<Void, Void, Void> {
                 @Override
                 public void run() {
                     Toast.makeText(activity, result, Toast.LENGTH_SHORT).show();
+                    activity.findViewById(R.id.colorB).setEnabled(true);
+                    activity.findViewById(R.id.textB).setEnabled(true);
+                    activity.findViewById(R.id.objectB).setEnabled(true);
                 }
             });
         }

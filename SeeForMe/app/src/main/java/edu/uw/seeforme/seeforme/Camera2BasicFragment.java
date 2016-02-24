@@ -25,6 +25,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -42,6 +44,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -59,6 +62,20 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.EntityAnnotation;
+import com.google.api.services.vision.v1.model.Feature;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -83,6 +100,7 @@ public class Camera2BasicFragment extends Fragment
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyCBHJTfMQp6ZqmnP-tZagRhlxRppBzPDWw";
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -170,6 +188,9 @@ public class Camera2BasicFragment extends Fragment
     private AutoFitTextureView mTextureView;
 
     private Button pictureButton;
+    private Button colorButton;
+    private Button textButton;
+    private Button objectButton;
 
     /**
      * A {@link CameraCaptureSession } for camera preview.
@@ -248,10 +269,56 @@ public class Camera2BasicFragment extends Fragment
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Image img = reader.acquireNextImage();
 
-            ParsePicture task = new ParsePicture(getActivity(), img);
-            task.execute();
+            switch (doing) {
+                case "color": {
+                    Image img = reader.acquireNextImage();
+
+                    ParsePicture task = new ParsePicture(getActivity(), img);
+                    task.execute();
+                    break;
+                }
+                case "object": {
+                    android.media.Image img = reader.acquireNextImage();
+                    // this part does the image encode
+
+
+                    ByteBuffer buffer = img.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.remaining()];
+                    buffer.get(bytes);
+                    try {
+                        // this is a bitmap convert from the image
+                        Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // make the api call
+                        callCloudVision(scaleBitmapDown(a, 1200));
+                    } catch (IOException e) {
+                        Log.d(TAG, "Image picking failed because " + e.getMessage());
+                    }
+                    break;
+                }
+                case "text": {
+                    android.media.Image img = reader.acquireNextImage();
+                    // this part does the image encode
+
+
+                    ByteBuffer buffer = img.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.remaining()];
+                    buffer.get(bytes);
+                    try {
+                        // this is a bitmap convert from the image
+                        Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // make the api call
+                        callCloudVision(scaleBitmapDown(a, 1200));
+                    } catch (IOException e) {
+                        Log.d(TAG, "Image picking failed because " + e.getMessage());
+                    }
+                    break;
+                }
+            }
+
+
 
             //mBackgroundHandler.post(new ImageSaver(img, mFile));
 
@@ -260,6 +327,139 @@ public class Camera2BasicFragment extends Fragment
         }
 
     };
+    private void callCloudVision(final Bitmap bitmap) throws IOException {
+        // Switch text to loading
+
+        // Do the real work in an async task, because we need to use the network anyway
+        new AsyncTask<Object, Void, String>() {
+            @Override
+            protected String doInBackground(Object... params) {
+                try {
+                    HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
+                    JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
+                    Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
+                    builder.setVisionRequestInitializer(new
+                            VisionRequestInitializer(CLOUD_VISION_API_KEY));
+                    Vision vision = builder.build();
+
+                    BatchAnnotateImagesRequest batchAnnotateImagesRequest =
+                            new BatchAnnotateImagesRequest();
+                    batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
+                        AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
+
+                        // Add the image
+                        com.google.api.services.vision.v1.model.Image base64EncodedImage = new com.google.api.services.vision.v1.model.Image();
+                        // Convert the bitmap to a JPEG
+                        // Just in case it's a format that Android understands but Cloud Vision
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
+                        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+
+                        // Base64 encode the JPEG
+                        base64EncodedImage.encodeContent(imageBytes);
+                        annotateImageRequest.setImage(base64EncodedImage);
+
+                        // add the features we want
+                        annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
+                            Feature labelDetection = new Feature();
+                            labelDetection.setType("TEXT_DETECTION");
+                            labelDetection.setMaxResults(10);
+                            Feature logoDetection = new Feature();
+                            logoDetection.setType("LOGO_DETECTION");
+                            logoDetection.setMaxResults(10);
+                            add(labelDetection);
+                            add(logoDetection);
+                        }});
+
+                        // Add the list of one thing to the request
+                        add(annotateImageRequest);
+                    }});
+
+                    Vision.Images.Annotate annotateRequest =
+                            vision.images().annotate(batchAnnotateImagesRequest);
+                    Log.d(TAG, "created Cloud Vision request object, sending request");
+
+                    BatchAnnotateImagesResponse response = annotateRequest.execute();
+                    convertResponseToString(response);
+
+                } catch (GoogleJsonResponseException e) {
+                    Log.d(TAG, "failed to make API request because " + e.getContent());
+                } catch (IOException e) {
+                    Log.d(TAG, "failed to make API request because of other IOException " +
+                            e.getMessage());
+                }
+                return "Cloud Vision API request failed. Check logs for details.";
+            }
+
+
+        }.execute();
+    }
+
+    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+
+        int originalWidth = bitmap.getWidth();
+        int originalHeight = bitmap.getHeight();
+        int resizedWidth = maxDimension;
+        int resizedHeight = maxDimension;
+
+        if (originalHeight > originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
+        } else if (originalWidth > originalHeight) {
+            resizedWidth = maxDimension;
+            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
+        } else if (originalHeight == originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = maxDimension;
+        }
+        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
+    }
+
+    private void convertResponseToString(BatchAnnotateImagesResponse response) {
+        switch (doing) {
+            case "text": {
+                String message = "I found these things:\n\n";
+
+                List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
+                List<EntityAnnotation> logos = response.getResponses().get(0).getLogoAnnotations();
+                if (logos != null) {
+                    message += "logos on this image: \n";
+                    for (EntityAnnotation logo : logos) {
+                        message += logo.getDescription();
+                        message += "\n";
+                    }
+                }
+
+                message += "Text found on the image: \n";
+                if (labels != null) {
+                    for (EntityAnnotation label : labels) {
+                        message += label.getDescription();
+                        message += "\n";
+                    }
+                } else {
+                    message += "nothing\n";
+                }
+
+                showToast(message);
+            }
+            case "object": {
+                String message = "I found these things:\n\n";
+
+                List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
+                if (labels != null) {
+                    for (EntityAnnotation label : labels) {
+                        message += label.getDescription();
+                        message += "\n";
+                    }
+                } else {
+                    message += "nothing";
+                }
+                showToast(message);
+            }
+        }
+
+    }
 
     /**
      * {@link CaptureRequest.Builder} for the camera preview
@@ -278,6 +478,7 @@ public class Camera2BasicFragment extends Fragment
      */
     private int mState = STATE_PREVIEW;
 
+    private String doing = "";
     /**
      * A {@link Semaphore} to prevent the app from exiting before closing the camera.
      */
@@ -368,7 +569,9 @@ public class Camera2BasicFragment extends Fragment
                 @Override
                 public void run() {
                     Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
-                    pictureButton.setEnabled(true);
+                    colorButton.setEnabled(true);
+                    textButton.setEnabled(true);
+                    objectButton.setEnabled(true);
                 }
             });
         }
@@ -435,9 +638,16 @@ public class Camera2BasicFragment extends Fragment
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
-        view.findViewById(R.id.picture).setOnClickListener(this);
+        view.findViewById(R.id.colorB).setOnClickListener(this);
+        view.findViewById(R.id.objectB).setOnClickListener(this);
+        view.findViewById(R.id.textB).setOnClickListener(this);
+
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
-        pictureButton = (Button)view.findViewById(R.id.picture);
+
+        colorButton = (Button)view.findViewById(R.id.colorB);
+        textButton = (Button)view.findViewById(R.id.textB);
+        objectButton = (Button)view.findViewById(R.id.objectB);
+
     }
 
     @Override
@@ -881,13 +1091,49 @@ public class Camera2BasicFragment extends Fragment
 
     @Override
     public void onClick(View view) {
+        Log.e("AAAA", Integer.toString(view.getId()));
+        Log.e("color", Integer.toString(R.id.colorB));
+        Log.e("text", Integer.toString(R.id.textB));
+        Log.e("object", Integer.toString(R.id.objectB));
+
+
         switch (view.getId()) {
-            case R.id.picture: {
+            case R.id.colorB: {
+                doing = "color";
                 takePicture();
-                //view.findViewById(R.id.picture).setEnabled(false);
+                break;
+            }
+            case R.id.objectB: {
+                doing = "object";
+                takePicture();
+                break;
+            }
+            case R.id.textB: {
+                doing = "text";
+                takePicture();
                 break;
             }
         }
+//        colorButton.setEnabled(false);
+//        objectButton.setEnabled(false);
+//        textButton.setEnabled(false);
+//
+//        Timer buttonTimer = new Timer();
+//        buttonTimer.schedule(new TimerTask() {
+//
+//            @Override
+//            public void run() {
+//                getActivity().runOnUiThread(new Runnable() {
+//
+//                    @Override
+//                    public void run() {
+//                        colorButton.setEnabled(true);
+//                        objectButton.setEnabled(true);
+//                        textButton.setEnabled(true);
+//                    }
+//                });
+//            }
+//        }, 3000);
     }
 
     private void setAutoFlash(CaptureRequest.Builder requestBuilder) {

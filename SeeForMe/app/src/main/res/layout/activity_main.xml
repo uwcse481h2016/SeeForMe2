@@ -1,52 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation = "vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="edu.uw.seeforme.seeforme.MainActivity">
+    tools:context="edu.uw.seeforme.seeforme.ColorRecognition">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="See For Me Prototype"
-        android:id="@+id/Title"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Color"
-        android:id="@+id/cr_button"
-        android:onClick="openCR"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Object"
-        android:id="@+id/or_button"
-        android:onClick="openOR"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Text"
-        android:id="@+id/tr_button"
-        android:onClick="openTR"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000"
+        tools:context="com.example.android.camera2basic.CameraActivity" />
 
 </RelativeLayout>
