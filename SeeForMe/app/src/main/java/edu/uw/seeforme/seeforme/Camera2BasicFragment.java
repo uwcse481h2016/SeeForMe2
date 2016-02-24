@@ -187,7 +187,6 @@ public class Camera2BasicFragment extends Fragment
      */
     private AutoFitTextureView mTextureView;
 
-    private Button pictureButton;
     private Button colorButton;
     private Button textButton;
     private Button objectButton;
@@ -362,14 +361,26 @@ public class Camera2BasicFragment extends Fragment
 
                         // add the features we want
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                            Feature labelDetection = new Feature();
-                            labelDetection.setType("TEXT_DETECTION");
-                            labelDetection.setMaxResults(10);
-                            Feature logoDetection = new Feature();
-                            logoDetection.setType("LOGO_DETECTION");
-                            logoDetection.setMaxResults(10);
-                            add(labelDetection);
-                            add(logoDetection);
+                            switch (doing) {
+                                case "text": {
+                                    Feature labelDetection = new Feature();
+                                    labelDetection.setType("TEXT_DETECTION");
+                                    labelDetection.setMaxResults(10);
+                                    Feature logoDetection = new Feature();
+                                    logoDetection.setType("LOGO_DETECTION");
+                                    logoDetection.setMaxResults(10);
+                                    add(labelDetection);
+                                    add(logoDetection);
+                                }
+                                break;
+                                case "object": {
+                                    Feature labelDetection = new Feature();
+                                    labelDetection.setType("Label_DETECTION");
+                                    labelDetection.setMaxResults(10);
+                                    add(labelDetection);
+                                }
+                            }
+
                         }});
 
                         // Add the list of one thing to the request
@@ -443,6 +454,7 @@ public class Camera2BasicFragment extends Fragment
 
                 showToast(message);
             }
+            break;
             case "object": {
                 String message = "I found these things:\n\n";
 
