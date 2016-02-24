@@ -998,6 +998,9 @@ public class Camera2BasicFragment extends Fragment
      */
     private void takePicture() {
         lockFocus();
+        textButton.setEnabled(false);
+        objectButton.setEnabled(false);
+        colorButton.setEnabled(false);
     }
 
     /**

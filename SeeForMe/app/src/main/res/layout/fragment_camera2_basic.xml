@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true" />
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/control"
         android:layout_width="match_parent"
         android:layout_height="80dp"
@@ -33,25 +33,28 @@
 
             <Button
                 android:id="@+id/textB"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight=".30"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
                 android:text="@string/textT"/>
 
             <Button
                 android:id="@+id/objectB"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight=".30"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:text="@string/objectT"/>
 
             <Button
                 android:id="@+id/colorB"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight=".30"
                 android:layout_height="match_parent"
                 android:layout_gravity="right"
                 android:text="@string/colorT"/>
 
-    </FrameLayout>
+    </LinearLayout>
 
 </RelativeLayout>
