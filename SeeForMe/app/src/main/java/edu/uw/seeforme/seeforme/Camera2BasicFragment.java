@@ -42,7 +42,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.Image;
 import android.media.ImageReader;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -72,8 +71,11 @@ import com.google.api.services.vision.v1.VisionRequestInitializer;
 import com.google.api.services.vision.v1.model.AnnotateImageRequest;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
 import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.ColorInfo;
+import com.google.api.services.vision.v1.model.DominantColorsAnnotation;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
+import com.google.api.services.vision.v1.model.ImageProperties;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -271,10 +273,23 @@ public class Camera2BasicFragment extends Fragment
 
             switch (doing) {
                 case "color": {
-                    Image img = reader.acquireNextImage();
 
-                    ParsePicture task = new ParsePicture(getActivity(), img);
-                    task.execute();
+                    android.media.Image img = reader.acquireNextImage();
+                    // this part does the image encode
+
+
+                    ByteBuffer buffer = img.getPlanes()[0].getBuffer();
+                    byte[] bytes = new byte[buffer.remaining()];
+                    buffer.get(bytes);
+                    try {
+                        // this is a bitmap convert from the image
+                        Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                        // make the api call
+                        callCloudVision(scaleBitmapDown(a, 1200));
+                    } catch (IOException e) {
+                        Log.d(TAG, "Image picking failed because " + e.getMessage());
+                    }
                     break;
                 }
                 case "object": {
@@ -379,6 +394,14 @@ public class Camera2BasicFragment extends Fragment
                                     labelDetection.setMaxResults(10);
                                     add(labelDetection);
                                 }
+                                break;
+                                case "color": {
+                                    Feature labelDetection = new Feature();
+                                    labelDetection.setType("IMAGE_PROPERTIES");
+                                    labelDetection.setMaxResults(5);
+                                    add(labelDetection);
+                                }
+                                break;
                             }
 
                         }});
@@ -463,6 +486,28 @@ public class Camera2BasicFragment extends Fragment
                     for (EntityAnnotation label : labels) {
                         message += label.getDescription();
                         message += "\n";
+                    }
+                } else {
+                    message += "nothing";
+                }
+                showToast(message);
+            }
+            break;
+            case "color": {
+                String message = "I found these colors:\n\n";
+                ColorDecoded cd = new ColorDecoded();
+                String s = "";
+                ImageProperties labels = response.getResponses().get(0).getImagePropertiesAnnotation();
+                if (labels != null) {
+                    ImageProperties label = labels;
+                    DominantColorsAnnotation p = label.getDominantColors();
+
+                    for (ColorInfo CI : p.getColors()) {
+                        if (CI.getScore() > 0.35) {
+                            com.google.api.services.vision.v1.model.Color c = CI.getColor();
+                            s = cd.getColorNameFromRgb((int) (c.getRed() * 1), (int) (c.getGreen() * 1), (int) (c.getBlue() * 1));
+                            message += s + " " + CI.getScore() + "\n";
+                        }
                     }
                 } else {
                     message += "nothing";

@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/SeeForMe.iml" filepath="$PROJECT_DIR$/SeeForMe.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/backend/backend.iml" filepath="$PROJECT_DIR$/backend/backend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/google-api-services-vision-v1-rev1-1.19.1/google-api-services-vision-v1-rev1-1.19.1.iml" filepath="$PROJECT_DIR$/google-api-services-vision-v1-rev1-1.19.1/google-api-services-vision-v1-rev1-1.19.1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/google-api-services-vision-v1-rev8-1.21.0/google-api-services-vision-v1-rev8-1.21.0.iml" filepath="$PROJECT_DIR$/google-api-services-vision-v1-rev8-1.21.0/google-api-services-vision-v1-rev8-1.21.0.iml" />
     </modules>
   </component>
 </project>
