@@ -7,6 +7,7 @@
     <string name="textT">Text</string>
     <string name="objectT">Object</string>
     <string name="colorT">Color</string>
+    <string name = "repeat">Repeat</string>
     <string name="description_info">Info</string>
     <string name="request_permission">This sample needs camera permission.</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
