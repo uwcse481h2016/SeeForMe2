@@ -503,7 +503,7 @@ public class Camera2BasicFragment extends Fragment
                     DominantColorsAnnotation p = label.getDominantColors();
 
                     for (ColorInfo CI : p.getColors()) {
-                        if (CI.getScore() > 0.35) {
+                        if (CI.getScore() > 0.05) {
                             com.google.api.services.vision.v1.model.Color c = CI.getColor();
                             s = cd.getColorNameFromRgb((int) (c.getRed() * 1), (int) (c.getGreen() * 1), (int) (c.getBlue() * 1));
                             message += s + " " + CI.getScore() + "\n";
