@@ -1,1 +1,1 @@
-include ':app', ':google-api-services-vision-v1-rev8-1.21.0', ':backend'
+include ':google-api-services-vision-v1-rev8-1.21.0', ':app', ':backend'

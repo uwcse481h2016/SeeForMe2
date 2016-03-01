@@ -192,6 +192,7 @@ public class Camera2BasicFragment extends Fragment
     private Button colorButton;
     private Button textButton;
     private Button objectButton;
+    private Button repeatButton;
 
     /**
      * A {@link CameraCaptureSession } for camera preview.
@@ -207,6 +208,11 @@ public class Camera2BasicFragment extends Fragment
      * The {@link android.util.Size} of camera preview.
      */
     private Size mPreviewSize;
+
+    /**
+     * Store the last message. Use repeat button to show it.
+     */
+    private String lastMessage = "No previous message to be shown.";
 
     /**
      * {@link CameraDevice.StateCallback} is called when {@link CameraDevice} changes its state.
@@ -476,6 +482,7 @@ public class Camera2BasicFragment extends Fragment
                 }
 
                 showToast(message);
+                lastMessage = "Last Message: \n" + message;
             }
             break;
             case "object": {
@@ -491,6 +498,7 @@ public class Camera2BasicFragment extends Fragment
                     message += "nothing";
                 }
                 showToast(message);
+                lastMessage = "Last Message: \n" + message;
             }
             break;
             case "color": {
@@ -513,6 +521,7 @@ public class Camera2BasicFragment extends Fragment
                     message += "nothing";
                 }
                 showToast(message);
+                lastMessage = "Last Message: \n" + message;
             }
         }
 
@@ -698,12 +707,14 @@ public class Camera2BasicFragment extends Fragment
         view.findViewById(R.id.colorB).setOnClickListener(this);
         view.findViewById(R.id.objectB).setOnClickListener(this);
         view.findViewById(R.id.textB).setOnClickListener(this);
+        view.findViewById(R.id.repeatB).setOnClickListener(this);
 
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
 
         colorButton = (Button)view.findViewById(R.id.colorB);
         textButton = (Button)view.findViewById(R.id.textB);
         objectButton = (Button)view.findViewById(R.id.objectB);
+        repeatButton = (Button)view.findViewById(R.id.repeatB);
 
     }
 
@@ -1171,6 +1182,10 @@ public class Camera2BasicFragment extends Fragment
             case R.id.textB: {
                 doing = "text";
                 takePicture();
+                break;
+            }
+            case R.id.repeatB: {
+                showToast(lastMessage);
                 break;
             }
         }

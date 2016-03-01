@@ -55,12 +55,14 @@
                 android:layout_gravity="right"
                 android:text="@string/colorT"/>
 
-    </LinearLayout>
 
+
+    </LinearLayout>
     <Button
         android:id="@+id/repeatB"
         android:layout_height="80dp"
         android:text="@string/repeat"
         android:layout_width="match_parent"/>
+
 
 </RelativeLayout>
