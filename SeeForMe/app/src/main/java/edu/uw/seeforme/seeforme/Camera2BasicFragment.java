@@ -486,16 +486,43 @@ public class Camera2BasicFragment extends Fragment
             }
             break;
             case "object": {
-                String message = "I found these things:\n\n";
-
+                String highConfidence = "";
+                String mediumConfidence = "";
+                String lowConfidence = "";
+                boolean objectDetected = false;
                 List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
                 if (labels != null) {
                     for (EntityAnnotation label : labels) {
-                        message += label.getDescription();
-                        message += "\n";
+                        if (label.getScore() > 0.85) {
+                            objectDetected = true;
+                            highConfidence += label.getDescription() + "\n";
+                        } else if (label.getScore() > 0.5) {
+                            objectDetected = true;
+                            mediumConfidence += label.getDescription() + "\n";
+                        } else if (label.getScore() > 0.3) {
+                            objectDetected = true;
+                            lowConfidence += label.getDescription() + "\n";
+                        }
                     }
+                }
+                String message = "";
+                if (objectDetected) {
+                    if (!highConfidence.isEmpty()) {
+                        message += "I am confident I found these things:\n\n";
+                        message += highConfidence;
+                    } else {
+                        if (!mediumConfidence.isEmpty()) {
+                            message += "I am somewhat confident I found these things:\n\n";
+                            message += mediumConfidence;
+                        }
+                        if (!lowConfidence.isEmpty()) {
+                            message += "I am not confident I found these things:\n\n";
+                            message += lowConfidence;
+                        }
+                    }
+                    message += "\n";
                 } else {
-                    message += "nothing";
+                    message += "I found these things:\n\nnothing";
                 }
                 showToast(message);
                 lastMessage = "Last Message: \n" + message;
