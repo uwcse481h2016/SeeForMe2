@@ -58,6 +58,7 @@
 
 
     </LinearLayout>
+
     <Button
         android:id="@+id/repeatB"
         android:layout_height="80dp"

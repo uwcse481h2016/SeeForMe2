@@ -638,6 +638,7 @@ public class Camera2BasicFragment extends Fragment
                     colorButton.setEnabled(true);
                     textButton.setEnabled(true);
                     objectButton.setEnabled(true);
+                    repeatButton.setEnabled(true);
                 }
             });
         }
@@ -1057,6 +1058,7 @@ public class Camera2BasicFragment extends Fragment
         textButton.setEnabled(false);
         objectButton.setEnabled(false);
         colorButton.setEnabled(false);
+        repeatButton.setEnabled(false);
     }
 
     /**
