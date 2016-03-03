@@ -545,7 +545,7 @@ public class Camera2BasicFragment extends Fragment
                         }
                     }
                     if (s == "I found these colors:\n\n") {
-                        s = "no dominate colors found";
+                        message = "no dominate colors found";
                     }
                 } else {
                     message += "nothing";
