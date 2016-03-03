@@ -1084,7 +1084,6 @@ public class Camera2BasicFragment extends Fragment
      * Initiate a still image capture.
      */
     private void takePicture() {
-        showToast("Processing Image");
         lockFocus();
         textButton.setEnabled(false);
         objectButton.setEnabled(false);
@@ -1159,7 +1158,7 @@ public class Camera2BasicFragment extends Fragment
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
                     //showToast("Saved: " + mFile);
-                    // showToast("Processing image");
+                    showToast("Processing image");
                     Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
