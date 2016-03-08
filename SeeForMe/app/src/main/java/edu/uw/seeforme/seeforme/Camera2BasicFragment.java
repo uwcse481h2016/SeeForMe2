@@ -102,7 +102,8 @@ public class Camera2BasicFragment extends Fragment
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
-    private static final String CLOUD_VISION_API_KEY = "AIzaSyCBHJTfMQp6ZqmnP-tZagRhlxRppBzPDWw";
+    // cloud vision API Key, please get your own.
+    private static final String API_KEY = "AIzaSyCBHJTfMQp6ZqmnP-tZagRhlxRppBzPDWw";
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -269,7 +270,7 @@ public class Camera2BasicFragment extends Fragment
 
     /**
      * This a callback object for the {@link ImageReader}. "onImageAvailable" will be called when a
-     * still image is ready to be saved.
+     *  This takes the image, and call cloud vision api with it
      */
     private final ImageReader.OnImageAvailableListener mOnImageAvailableListener
             = new ImageReader.OnImageAvailableListener() {
@@ -277,76 +278,24 @@ public class Camera2BasicFragment extends Fragment
         @Override
         public void onImageAvailable(ImageReader reader) {
 
-            switch (doing) {
-                case "color": {
+            android.media.Image img = reader.acquireNextImage();
+            ByteBuffer buffer = img.getPlanes()[0].getBuffer();
 
-                    android.media.Image img = reader.acquireNextImage();
-                    // this part does the image encode
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            try {
+                // this is a bitmap convert from the image
+                Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-
-                    ByteBuffer buffer = img.getPlanes()[0].getBuffer();
-                    byte[] bytes = new byte[buffer.remaining()];
-                    buffer.get(bytes);
-                    try {
-                        // this is a bitmap convert from the image
-                        Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                        // make the api call
-                        callCloudVision(scaleBitmapDown(a, 1200));
-                    } catch (IOException e) {
-                        Log.d(TAG, "Image picking failed because " + e.getMessage());
-                    }
-                    break;
-                }
-                case "object": {
-                    android.media.Image img = reader.acquireNextImage();
-                    // this part does the image encode
-
-
-                    ByteBuffer buffer = img.getPlanes()[0].getBuffer();
-                    byte[] bytes = new byte[buffer.remaining()];
-                    buffer.get(bytes);
-                    try {
-                        // this is a bitmap convert from the image
-                        Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                        // make the api call
-                        callCloudVision(scaleBitmapDown(a, 1200));
-                    } catch (IOException e) {
-                        Log.d(TAG, "Image picking failed because " + e.getMessage());
-                    }
-                    break;
-                }
-                case "text": {
-                    android.media.Image img = reader.acquireNextImage();
-                    // this part does the image encode
-
-
-                    ByteBuffer buffer = img.getPlanes()[0].getBuffer();
-                    byte[] bytes = new byte[buffer.remaining()];
-                    buffer.get(bytes);
-                    try {
-                        // this is a bitmap convert from the image
-                        Bitmap a = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                        // make the api call
-                        callCloudVision(scaleBitmapDown(a, 1200));
-                    } catch (IOException e) {
-                        Log.d(TAG, "Image picking failed because " + e.getMessage());
-                    }
-                    break;
-                }
+                // make the api call
+                callCloudVision(scaleBitmapDown(a, 1200));
+            } catch (IOException e) {
+                Log.d(TAG, "Image picking failed because " + e.getMessage());
             }
-
-
-
-            //mBackgroundHandler.post(new ImageSaver(img, mFile));
-
-            //File root = Environment.getExternalStorageDirectory()
-
         }
-
     };
+
+    // Takes a given bitmap and send it to google
     private void callCloudVision(final Bitmap bitmap) throws IOException {
         // Switch text to loading
 
@@ -360,7 +309,7 @@ public class Camera2BasicFragment extends Fragment
 
                     Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
                     builder.setVisionRequestInitializer(new
-                            VisionRequestInitializer(CLOUD_VISION_API_KEY));
+                            VisionRequestInitializer(API_KEY));
                     Vision vision = builder.build();
 
                     BatchAnnotateImagesRequest batchAnnotateImagesRequest =
@@ -380,7 +329,7 @@ public class Camera2BasicFragment extends Fragment
                         base64EncodedImage.encodeContent(imageBytes);
                         annotateImageRequest.setImage(base64EncodedImage);
 
-                        // add the features we want
+                        // add the features we want for the tasks we are doing
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             switch (doing) {
                                 case "text": {
@@ -436,6 +385,7 @@ public class Camera2BasicFragment extends Fragment
         }.execute();
     }
 
+    // makes it a bit smaller to process
     public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
 
         int originalWidth = bitmap.getWidth();
