@@ -86,7 +86,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -482,6 +484,7 @@ public class Camera2BasicFragment extends Fragment
             break;
             case "color": {
                 String message = "I found these colors:\n\n";
+                Set<String> results = new HashSet<>();
                 ColorDecoded cd = new ColorDecoded();
                 String s = "";
                 ImageProperties labels = response.getResponses().get(0).getImagePropertiesAnnotation();
@@ -493,14 +496,17 @@ public class Camera2BasicFragment extends Fragment
                         if (CI.getScore() > 0.15) {
                             com.google.api.services.vision.v1.model.Color c = CI.getColor();
                             s = cd.getColorNameFromRgb((int) (c.getRed() * 1), (int) (c.getGreen() * 1), (int) (c.getBlue() * 1));
-                            message += s + " " + "\n";
+                            results.add(s);
                         }
                     }
                     if (message.equals("I found these colors:\n\n")) {
                         message = "no dominate colors found";
                     }
                 } else {
-                    message += "nothing";
+                    message += "I found no colors";
+                }
+                for (String se : results) {
+                    message += se + " " + "\n";
                 }
                 showToast(message);
                 lastMessage = "Last Message: \n" + message;
