@@ -499,14 +499,15 @@ public class Camera2BasicFragment extends Fragment
                             results.add(s);
                         }
                     }
-                    if (message.equals("I found these colors:\n\n")) {
-                        message = "no dominate colors found";
-                    }
+
                 } else {
                     message += "I found no colors";
                 }
                 for (String se : results) {
                     message += se + " " + "\n";
+                }
+                if (message.equals("I found these colors:\n\n")) {
+                    message = "no dominate colors found\n";
                 }
                 showToast(message);
                 lastMessage = "Last Message: \n" + message;
