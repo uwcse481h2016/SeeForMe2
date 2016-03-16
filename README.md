@@ -3,8 +3,9 @@ SeeForMe is a group project for the Accessibility Capstone at the University of 
 
 # How to use
 The SeeForMe application code can be found in the SeeForMe folder
-Download the app-debug.apk file and follow the instruction on Installation Mauenl and User guide
+Download the app-debug.apk file and follow the instruction on Installation Mauenl and User guide to install.
 
+# Reference
 Camera Code
 Look at https://github.com/googlesamples/android-Camera2Basic
 
