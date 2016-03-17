@@ -105,7 +105,7 @@ public class Camera2BasicFragment extends Fragment
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
     // cloud vision API Key, please get your own.
-    private static final String API_KEY = "AIzaSyCBHJTfMQp6ZqmnP-tZagRhlxRppBzPDWw";
+    private static final String API_KEY = "";
     //private static final String API_KEY = "Your_API_KEY";
 
 
